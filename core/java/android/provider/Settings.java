@@ -5597,6 +5597,20 @@ public final class Settings {
          public static final String UDFPS_ICON_ACCENT = "udfps_icon_accent";
 
         /**
+         * whether to enable or disable vibration on succesful fingerprint auth
+         *
+         * @hide
+         */
+        public static final String FP_SUCCESS_VIBRATE = "fingerprint_success_vib";
+
+        /**
+         * whether to enable or disable vibration on failed fingerprint auth
+         *
+         * @hide
+         */
+        public static final String FP_ERROR_VIBRATE = "fingerprint_error_vib";
+
+        /**
          * These are all public system settings
          *
          * @hide
