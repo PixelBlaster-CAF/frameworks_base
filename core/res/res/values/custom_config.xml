@@ -161,4 +161,8 @@
 
     <!-- Parallel space max count. Should overlay according to device performance. -->
     <integer name="config_parallelSpaceMaxCount">9</integer>
+
+    <!-- Whether device has an alert slider. -->
+    <bool name="config_hasAlertSlider">false</bool>
+
 </resources>
