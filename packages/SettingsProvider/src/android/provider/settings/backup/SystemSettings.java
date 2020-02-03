@@ -96,5 +96,6 @@ public class SystemSettings {
         Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL,
         Settings.System.FULLSCREEN_GESTURES,
         Settings.System.LOCKSCREEN_BATTERY_INFO,
+        Settings.System.RINGTONE_VIBRATION_PATTERN,
     };
 }
