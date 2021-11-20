@@ -38,8 +38,10 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Process;
 import android.os.Trace;
+import android.os.UserHandle;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.RotationUtils;
 import android.view.LayoutInflater;
@@ -671,7 +673,9 @@ public class UdfpsController implements DozeReceiver {
      */
     @VisibleForTesting
     public void playStartHaptic() {
-        if (mAccessibilityManager.isTouchExplorationEnabled()) {
+        boolean FingerprintVib = Settings.System.getIntForUser(mContext.getContentResolver(),
+            Settings.System.FP_START_VIBRATE, 1, UserHandle.USER_CURRENT) == 1;
+        if (mAccessibilityManager.isTouchExplorationEnabled() && FingerprintVib) {
             mVibrator.vibrate(
                     Process.myUid(),
                     mContext.getOpPackageName(),
