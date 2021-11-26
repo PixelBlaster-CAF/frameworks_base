@@ -16,8 +16,6 @@
 
 package com.android.systemui.statusbar.phone;
 
-import static com.android.systemui.qs.QSPanel.QS_SHOW_AUTO_BRIGHTNESS_BUTTON;
-
 import android.app.StatusBarManager;
 import android.hardware.display.AmbientDisplayConfiguration;
 import android.media.AudioManager;
@@ -96,8 +94,6 @@ public class NotificationShadeWindowViewController {
     private final PanelExpansionStateManager mPanelExpansionStateManager;
     private final Optional<LowLightClockController> mLowLightClockController;
 
-    private ImageView mAutoBrightnessIcon;
-    private boolean mShowAutoBrightnessButton;
     private boolean mIsTrackingBarGesture = false;
 
     // custom additions start
@@ -144,10 +140,13 @@ public class NotificationShadeWindowViewController {
 
         // This view is not part of the newly inflated expanded status bar.
         mBrightnessMirror = mView.findViewById(R.id.brightness_mirror_container);
-        mAutoBrightnessIcon = (ImageView)
-                mBrightnessMirror.findViewById(R.id.brightness_icon);
-        mShowAutoBrightnessButton = mTunerService.getValue(
-                QS_SHOW_AUTO_BRIGHTNESS_BUTTON, 1) == 1;
+        ImageView icon = mBrightnessMirror.findViewById(R.id.brightness_icon);
+        if (icon != null) {
+            boolean show = Settings.Secure.getInt(
+                    mView.getContext().getContentResolver(),
+                    Settings.Secure.QS_SHOW_AUTO_BRIGHTNESS_BUTTON, 1) == 1;
+            icon.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
     }
 
     /**
@@ -436,10 +435,11 @@ public class NotificationShadeWindowViewController {
             public void onChildViewAdded(View parent, View child) {
                 if (child.getId() == R.id.brightness_mirror_container) {
                     mBrightnessMirror = child;
-                    mAutoBrightnessIcon = (ImageView)
-                            child.findViewById(R.id.brightness_icon);
-                    mAutoBrightnessIcon.setVisibility(!mShowAutoBrightnessButton
-                            ? View.GONE : View.VISIBLE);
+                    ImageView icon = child.findViewById(R.id.brightness_icon);
+                    boolean show = Settings.Secure.getInt(
+                            mView.getContext().getContentResolver(),
+                            Settings.Secure.QS_SHOW_AUTO_BRIGHTNESS_BUTTON, 1) == 1;
+                    icon.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             }
 
