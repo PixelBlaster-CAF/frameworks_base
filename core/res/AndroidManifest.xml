@@ -854,6 +854,10 @@
     <protected-broadcast android:name="com.android.server.app.AppLockManagerService.APP_LOCK_TIMEOUT" />
     <protected-broadcast android:name="android.app.action.UNLOCK_APP" />
 
+    <!-- GameSpace -->
+    <protected-broadcast android:name="com.blaster.gamespace.action.GAME_START" />
+    <protected-broadcast android:name="com.blaster.gamespace.action.GAME_STOP" />
+
     <!-- ====================================================================== -->
     <!--                          RUNTIME PERMISSIONS                           -->
     <!-- ====================================================================== -->
