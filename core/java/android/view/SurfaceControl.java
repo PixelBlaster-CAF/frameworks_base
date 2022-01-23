@@ -315,6 +315,7 @@ public final class SurfaceControl implements Parcelable {
         Log.e(TAG, "Trying to convert unknown rotation=" + rotation);
         return BUFFER_TRANSFORM_IDENTITY;
     }
+    private static native void nativeSanitize(long transactionObject);
 
     @Nullable
     @GuardedBy("mLock")
@@ -3541,6 +3542,13 @@ public final class SurfaceControl implements Parcelable {
             checkPreconditions(sc);
             nativeSetDropInputMode(mNativeObject, sc.mNativeObject, mode);
             return this;
+        }
+
+        /**
+         * @hide
+         */
+        public void sanitize() {
+            nativeSanitize(mNativeObject);
         }
 
         /**
