@@ -54,6 +54,9 @@ import com.android.systemui.statusbar.policy.IndividualSensorPrivacyController;
 import com.android.systemui.statusbar.policy.IndividualSensorPrivacyControllerImpl;
 import com.android.systemui.statusbar.policy.SensorPrivacyController;
 import com.android.systemui.statusbar.policy.SensorPrivacyControllerImpl;
+import com.android.systemui.theme.ThemeOverlayController;
+
+import com.blaster.android.systemui.theme.BlasterThemeOverlayController;
 
 import javax.inject.Named;
 
@@ -185,5 +188,8 @@ public abstract class BlasterSystemUIModule {
 
     @Binds
     abstract DozeHost provideDozeHost(DozeServiceHost dozeServiceHost);
+
+    @Binds
+    abstract ThemeOverlayController provideThemeOverlayController(AospaThemeOverlayController themeOverlayController);
 
 }
