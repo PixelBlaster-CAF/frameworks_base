@@ -99,8 +99,8 @@ public class KeyguardIndicationRotateTextViewController extends
      *                        the IndicationQueue comes around.
      */
     public void updateIndication(@IndicationType int type, KeyguardIndication newIndication,
-            boolean updateImmediately) {
-        updateIndication(type, newIndication, updateImmediately, false);
+            boolean animate) {
+        updateIndication(type, newIndication, animate, false);
     }
 
     /**
@@ -113,11 +113,12 @@ public class KeyguardIndicationRotateTextViewController extends
      * @param fixed if true: keep message appearing until it is explicitly hidden
      */
     public void updateIndication(@IndicationType int type, KeyguardIndication newIndication,
-            boolean updateImmediately, boolean fixed) {
+            boolean animate, boolean fixed) {
         if (type == INDICATION_TYPE_REVERSE_CHARGING) {
             // temporarily don't show here, instead use AmbientContainer b/181049781
             return;
         }
+
         if (type == INDICATION_TYPE_FACE_RECOGNITION_STARTED){
             mView.setAnimationsEnabled(false);
         }
@@ -142,7 +143,7 @@ public class KeyguardIndicationRotateTextViewController extends
             return;
         }
 
-        final boolean showNow = updateImmediately
+        final boolean showNow = animate
                 || fixed
                 || mCurrIndicationType == INDICATION_TYPE_NONE
                 || mCurrIndicationType == type;
@@ -215,7 +216,7 @@ public class KeyguardIndicationRotateTextViewController extends
      * Will re-add this indication to be re-shown after all other indications have been
      * rotated through.
      */
-    private void showIndication(@IndicationType int type) {
+    private void showIndication(@IndicationType int type, boolean animate) {
         if (mCurrIndicationType == INDICATION_TYPE_FACE_RECOGNITION_STARTED){
             return;
         }
