@@ -1055,7 +1055,7 @@ public class KeyguardViewMediator extends SystemUI implements Dumpable,
         // explicitly DO NOT want to call
         // mKeyguardViewControllerLazy.get().setKeyguardGoingAwayState(false)
         // here, since that will mess with the device lock state.
-        mUpdateMonitor.dispatchKeyguardGoingAway(false);
+        //mUpdateMonitor.dispatchKeyguardGoingAway(false);
 
         notifyStartedGoingToSleep();
     }
