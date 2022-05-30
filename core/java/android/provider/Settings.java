@@ -6090,6 +6090,12 @@ public final class Settings {
         public static final String STATUS_BAR_CLOCK_AUTO_HIDE_SDURATION = "status_bar_clock_auto_hide_sduration";
 
         /**
+         * Apply accent color to AOD clock
+         * @hide
+         */
+         public static final String AOD_CLOCK_ACCENT = "aod_clock_accent";
+
+        /**
          * These are all public system settings
          *
          * @hide
