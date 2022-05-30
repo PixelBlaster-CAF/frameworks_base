@@ -5866,6 +5866,12 @@ public final class Settings {
          public static final String AOD_CLOCK_ACCENT = "aod_clock_accent";
 
         /**
+         * Apply accent color to UDFPS icon
+         * @hide
+         */
+         public static final String UDFPS_ICON_ACCENT = "udfps_icon_accent";
+
+        /**
          * These are all public system settings
          *
          * @hide

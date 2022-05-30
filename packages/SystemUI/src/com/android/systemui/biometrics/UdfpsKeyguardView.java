@@ -26,6 +26,8 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.MathUtils;
 import android.view.View;
@@ -141,8 +143,16 @@ public class UdfpsKeyguardView extends UdfpsAnimationView {
     }
 
     void updateColor() {
+        boolean udfps_icon_accent = Settings.System.getIntForUser(getContext().getContentResolver(),
+                Settings.System.UDFPS_ICON_ACCENT, 1, UserHandle.USER_CURRENT) == 1;
+        if(udfps_icon_accent) {
+        mTextColorPrimary = Utils.getColorAttrDefaultColor(getContext(),
+                com.android.systemui.R.attr.wallpaperTextColorAccent);
+        }
+        else {
         mTextColorPrimary = Utils.getColorAttrDefaultColor(mContext,
             android.R.attr.textColorPrimary);
+        }
         mBgProtection.setImageDrawable(getContext().getDrawable(R.drawable.fingerprint_bg));
         mLockScreenFp.invalidate(); // updated with a valueCallback
     }
