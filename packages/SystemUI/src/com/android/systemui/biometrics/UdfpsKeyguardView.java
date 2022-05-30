@@ -93,6 +93,11 @@ public class UdfpsKeyguardView extends UdfpsAnimationView {
                 new KeyPath("**"), LottieProperty.COLOR_FILTER,
                 frameInfo -> new PorterDuffColorFilter(mTextColorPrimary, PorterDuff.Mode.SRC_ATOP)
         );
+        // requires call to invalidate to update the color
+        mAodFp.addValueCallback(
+                new KeyPath("**"), LottieProperty.COLOR_FILTER,
+                frameInfo -> new PorterDuffColorFilter(mTextColorPrimary, PorterDuff.Mode.SRC_ATOP)
+        );
     }
 
     @Override
