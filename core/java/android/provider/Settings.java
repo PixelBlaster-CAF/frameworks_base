@@ -5538,6 +5538,12 @@ public final class Settings {
         public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
 
         /**
+         * Apply accent color to AOD clock
+         * @hide
+         */
+         public static final String AOD_CLOCK_ACCENT = "aod_clock_accent";
+
+        /**
          * These are all public system settings
          *
          * @hide
