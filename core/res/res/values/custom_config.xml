@@ -158,4 +158,7 @@
 
     <!-- Whether to show WiFi/Hotspot standard -->
     <bool name="config_show_network_standard">true</bool>
+
+    <!-- Parallel space max count. Should overlay according to device performance. -->
+    <integer name="config_parallelSpaceMaxCount">9</integer>
 </resources>

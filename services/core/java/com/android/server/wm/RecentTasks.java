@@ -77,6 +77,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.protolog.common.ProtoLog;
 import com.android.internal.util.function.pooled.PooledLambda;
 import com.android.server.am.ActivityManagerService;
+import com.android.server.custom.ParallelSpaceManagerService;
 
 import com.google.android.collect.Sets;
 
@@ -871,6 +872,7 @@ class RecentTasks {
         for (int i = 0; i < profileIds.length; i++) {
             userIds.add(Integer.valueOf(profileIds[i]));
         }
+        userIds.addAll(ParallelSpaceManagerService.getCurrentParallelUserIds());
         return userIds;
     }
 

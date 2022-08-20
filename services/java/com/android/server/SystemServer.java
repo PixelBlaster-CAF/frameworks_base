@@ -219,6 +219,7 @@ import com.android.server.webkit.WebViewUpdateService;
 import com.android.server.wm.ActivityTaskManagerService;
 import com.android.server.wm.WindowManagerGlobalLock;
 import com.android.server.wm.WindowManagerService;
+import com.android.server.custom.ParallelSpaceManagerService;
 
 import dalvik.system.VMRuntime;
 import dalvik.system.PathClassLoader;
@@ -413,6 +414,8 @@ public final class SystemServer implements Dumpable {
             "com.android.server.media.MediaCommunicationService";
     private static final String APP_COMPAT_OVERRIDES_SERVICE_CLASS =
             "com.android.server.compat.overrides.AppCompatOverridesService$Lifecycle";
+    private static final String PARALLEL_SPACE_SERVICE_CLASS =
+            "com.android.server.custom.ParallelSpaceManagerService";
 
     private static final String ROLE_SERVICE_CLASS = "com.android.role.RoleService";
     private static final String GAME_MANAGER_SERVICE_CLASS =
@@ -2884,6 +2887,10 @@ public final class SystemServer implements Dumpable {
 
         t.traceBegin("AppCompatOverridesService");
         mSystemServiceManager.startService(APP_COMPAT_OVERRIDES_SERVICE_CLASS);
+        t.traceEnd();
+
+        t.traceBegin("StartParallelSpaceManagerService");
+        mSystemServiceManager.startService(PARALLEL_SPACE_SERVICE_CLASS);
         t.traceEnd();
 
         // These are needed to propagate to the runnable below.
