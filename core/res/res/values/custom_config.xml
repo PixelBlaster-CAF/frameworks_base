@@ -155,4 +155,7 @@
 
     <!-- Should we filter any display modes which are unmapped? -->
     <bool name="config_filterDisplayModes">false</bool>
+
+    <!-- Whether to show WiFi/Hotspot standard -->
+    <bool name="config_show_network_standard">true</bool>
 </resources>
