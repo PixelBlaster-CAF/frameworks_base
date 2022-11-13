@@ -5535,24 +5535,6 @@ public final class Settings {
         public static final String NOTIFICATION_SOUND_VIB_SCREEN_ON = "notification_sound_vib_screen_on";
 
         /**
-         * Whether the phone vibrates on call connect
-         * @hide
-         */
-        public static final String VIBRATE_ON_CONNECT = "vibrate_on_connect";
-
-        /**
-         * Whether the phone vibrates on call waiting
-         * @hide
-         */
-        public static final String VIBRATE_ON_CALLWAITING = "vibrate_on_callwaiting";
-
-        /**
-         * Whether the phone vibrates on disconnect
-         * @hide
-         */
-        public static final String VIBRATE_ON_DISCONNECT = "vibrate_on_disconnect";
-
-        /**
          * Whether to hide navbar pill and keyboard space.
          * Default 0.
          * @hide
@@ -5860,9 +5842,6 @@ public final class Settings {
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE_VENDOR_HINT);
             PRIVATE_SETTINGS.add(CALL_CONNECTED_TONE_ENABLED);
-            PRIVATE_SETTINGS.add(VIBRATE_ON_CONNECT);
-            PRIVATE_SETTINGS.add(VIBRATE_ON_CALLWAITING);
-            PRIVATE_SETTINGS.add(VIBRATE_ON_DISCONNECT);
         }
 
         /**
