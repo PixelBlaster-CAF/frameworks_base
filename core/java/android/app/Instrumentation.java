@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import com.android.internal.util.custom.GamesPropsUtils;
 import com.android.internal.util.custom.PixelPropsUtils;
 
 /**
@@ -1236,6 +1237,7 @@ public class Instrumentation {
         app.attach(context);
         String packageName = context.getPackageName();
         PixelPropsUtils.setProps(packageName);
+        GamesPropsUtils.setProps(packageName, context);
         return app;
     }
     
@@ -1255,6 +1257,7 @@ public class Instrumentation {
         app.attach(context);
         String packageName = context.getPackageName();
         PixelPropsUtils.setProps(packageName);
+        GamesPropsUtils.setProps(packageName, context);
         return app;
     }
 
