@@ -50,7 +50,6 @@ import android.os.ServiceManager;
 import android.os.ShellCallback;
 import android.os.ShellCommand;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.os.Trace;
 import android.os.UEventObserver;
 import android.os.UserHandle;
@@ -69,9 +68,6 @@ import com.android.server.am.BatteryStatsService;
 import com.android.server.health.HealthServiceWrapper;
 import com.android.server.lights.LightsManager;
 import com.android.server.lights.LogicalLight;
-
-import motorola.hardware.health.V1_0.BatteryProperties;
-import motorola.hardware.health.V1_0.IMotHealth;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -204,16 +200,6 @@ public final class BatteryService extends SystemService {
 
     private MetricsLogger mMetricsLogger;
 
-    private static final int MOD_TYPE_SUPPLEMENTAL = 2;
-    private static final int MOD_TYPE_EMERGENCY = 3;
-    private BatteryProperties mBatteryModProps;
-    private IMotHealth mMotHealthService = null;
-    private int mLastModFlag;
-    private int mLastModLevel;
-    private int mLastModPowerSource;
-    private int mLastModStatus;
-    private int mLastModType;
-
     public BatteryService(Context context) {
         super(context);
 
@@ -256,19 +242,6 @@ public final class BatteryService extends SystemService {
         }
 
         mBatteryInputSuspended = PowerProperties.battery_input_suspended().orElse(false);
-        mBatteryModProps = new BatteryProperties();
-        mBatteryModProps.modLevel = -1;
-        mBatteryModProps.modStatus = 1;
-        mBatteryModProps.modFlag = 0;
-        mBatteryModProps.modType = 0;
-        mBatteryModProps.modPowerSource = 0;
-        try {
-            mMotHealthService = IMotHealth.getService();
-        } catch (RemoteException e) {
-            Slog.e(TAG, "health: cannot get service. (RemoteException)");
-        } catch (NoSuchElementException e2) {
-            Slog.e(TAG, "mothealth: cannot get service. (no supported health HAL service)");
-        }
     }
 
     @Override
@@ -442,10 +415,6 @@ public final class BatteryService extends SystemService {
                 && mHealthInfo.chargerDockOnline) {
             return true;
         }
-        if ((plugTypeSet & BatteryManager.BATTERY_PLUGGED_MOD) != 0
-                && supplementalOrEmergencyModOnline() && isModBatteryActive()) {
-            return true;
-        }
         return false;
     }
 
@@ -539,16 +508,6 @@ public final class BatteryService extends SystemService {
         synchronized (mLock) {
             if (!mUpdatesStopped) {
                 mHealthInfo = info;
-                if (mMotHealthService != null) {
-                    try {
-                        mBatteryModProps = mMotHealthService.getModBatteryProperties();
-                        if (mBatteryModProps.modFlag > 0) {
-                            mHealthInfo.batteryLevel = mBatteryModProps.batteryLevel;
-                        }
-                    } catch (RemoteException e) {
-                        Slog.e(TAG, "getModBatteryProperties fail!");
-                    }
-                }
                 // Process the new values.
                 processValuesLocked(false);
                 mLock.notifyAll(); // for any waiters on new info
@@ -581,17 +540,6 @@ public final class BatteryService extends SystemService {
             mHealthInfo.batteryStatus != BatteryManager.BATTERY_STATUS_UNKNOWN
             && mHealthInfo.batteryLevel <= mCriticalBatteryLevel;
         mPlugType = plugType(mHealthInfo);
-        if (mHealthInfo.chargerAcOnline) {
-            mPlugType = BatteryManager.BATTERY_PLUGGED_AC;
-        } else if (mHealthInfo.chargerUsbOnline) {
-            mPlugType = BatteryManager.BATTERY_PLUGGED_USB;
-        } else if (mHealthInfo.chargerWirelessOnline) {
-            mPlugType = BatteryManager.BATTERY_PLUGGED_WIRELESS;
-        } else if (supplementalOrEmergencyModOnline()) {
-            mPlugType = BatteryManager.BATTERY_PLUGGED_MOD;
-        } else {
-            mPlugType = BATTERY_PLUGGED_NONE;
-        }
 
         if (DEBUG) {
             Slog.d(TAG, "Processing new values: "
@@ -605,7 +553,7 @@ public final class BatteryService extends SystemService {
             mBatteryStats.setBatteryState(
                     mHealthInfo.batteryStatus,
                     mHealthInfo.batteryHealth,
-                    maybeTranslatePlugType(mPlugType),
+                    mPlugType,
                     mHealthInfo.batteryLevel,
                     mHealthInfo.batteryTemperatureTenthsCelsius,
                     mHealthInfo.batteryVoltageMillivolts,
@@ -632,11 +580,6 @@ public final class BatteryService extends SystemService {
                         || mHealthInfo.maxChargingCurrentMicroamps != mLastMaxChargingCurrent
                         || mHealthInfo.maxChargingVoltageMicrovolts != mLastMaxChargingVoltage
                         || mHealthInfo.batteryChargeCounterUah != mLastChargeCounter
-                        || mBatteryModProps.modLevel != mLastModLevel
-                        || mBatteryModProps.modStatus != mLastModStatus
-                        || mBatteryModProps.modFlag != mLastModFlag
-                        || mBatteryModProps.modType != mLastModType
-                        || mBatteryModProps.modPowerSource != mLastModPowerSource
                         || mInvalidCharger != mLastInvalidCharger
                         || mOemFastCharger != mLastOemFastCharger)) {
 
@@ -812,11 +755,6 @@ public final class BatteryService extends SystemService {
             mLastChargeCounter = mHealthInfo.batteryChargeCounterUah;
             mLastBatteryLevelCritical = mBatteryLevelCritical;
             mLastInvalidCharger = mInvalidCharger;
-            mLastModLevel = mBatteryModProps.modLevel;
-            mLastModStatus = mBatteryModProps.modStatus;
-            mLastModFlag = mBatteryModProps.modFlag;
-            mLastModType = mBatteryModProps.modType;
-            mLastModPowerSource = mBatteryModProps.modPowerSource;
             mLastOemFastCharger = mOemFastCharger;
         }
     }
@@ -837,7 +775,7 @@ public final class BatteryService extends SystemService {
         intent.putExtra(BatteryManager.EXTRA_BATTERY_LOW, mSentLowBatteryBroadcast);
         intent.putExtra(BatteryManager.EXTRA_SCALE, BATTERY_SCALE);
         intent.putExtra(BatteryManager.EXTRA_ICON_SMALL, icon);
-        intent.putExtra(BatteryManager.EXTRA_PLUGGED, maybeTranslatePlugType(mPlugType));
+        intent.putExtra(BatteryManager.EXTRA_PLUGGED, mPlugType);
         intent.putExtra(BatteryManager.EXTRA_VOLTAGE, mHealthInfo.batteryVoltageMillivolts);
         intent.putExtra(
                 BatteryManager.EXTRA_TEMPERATURE, mHealthInfo.batteryTemperatureTenthsCelsius);
@@ -849,12 +787,6 @@ public final class BatteryService extends SystemService {
                 BatteryManager.EXTRA_MAX_CHARGING_VOLTAGE,
                 mHealthInfo.maxChargingVoltageMicrovolts);
         intent.putExtra(BatteryManager.EXTRA_CHARGE_COUNTER, mHealthInfo.batteryChargeCounterUah);
-        intent.putExtra(BatteryManager.EXTRA_MOD_LEVEL, mBatteryModProps.modLevel);
-        intent.putExtra(BatteryManager.EXTRA_MOD_STATUS, mBatteryModProps.modStatus);
-        intent.putExtra(BatteryManager.EXTRA_MOD_FLAG, mBatteryModProps.modFlag);
-        intent.putExtra(BatteryManager.EXTRA_PLUGGED_RAW, mPlugType);
-        intent.putExtra(BatteryManager.EXTRA_MOD_TYPE, mBatteryModProps.modType);
-        intent.putExtra(BatteryManager.EXTRA_MOD_POWER_SOURCE, mBatteryModProps.modPowerSource);
         intent.putExtra(BatteryManager.EXTRA_OEM_FAST_CHARGER, mOemFastCharger);
         if (DEBUG) {
             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
@@ -1012,36 +944,6 @@ public final class BatteryService extends SystemService {
         } else {
             return com.android.internal.R.drawable.stat_sys_battery_unknown;
         }
-    }
-
-    private int maybeTranslatePlugType(int plugType) {
-        if (plugType != BatteryManager.BATTERY_PLUGGED_MOD) {
-            return plugType;
-        }
-        if (this.mHealthInfo.batteryStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
-            return BatteryManager.BATTERY_PLUGGED_AC;
-        }
-        return BATTERY_PLUGGED_NONE;
-    }
-
-    private boolean supplementalOrEmergencyModOnline() {
-        return mBatteryModProps.modLevel > 0 &&
-        (mBatteryModProps.modType == MOD_TYPE_SUPPLEMENTAL ||
-        mBatteryModProps.modType == MOD_TYPE_EMERGENCY);
-    }
-
-    private boolean isModBatteryActive() {
-        if (mBatteryModProps.modLevel <= 0 || mBatteryModProps.modType != MOD_TYPE_SUPPLEMENTAL) {
-            return false;
-        }
-        String batteryMode = SystemProperties.get("sys.mod.batterymode");
-        if ("0".equals(batteryMode)) {
-            return true;
-        }
-        if (!"2".equals(batteryMode) && mHealthInfo.batteryLevel <= 80) {
-            return true;
-        }
-        return false;
     }
 
     class Shell extends ShellCommand {
