@@ -129,4 +129,36 @@ public class CustomUtils {
             return null;
         }
     }
+
+    public static void restartLauncher(Context context) {
+        new RestartLauncherTask(context).execute();
+    }
+
+    private static class RestartLauncherTask extends AsyncTask<Void, Void, Void> {
+        private Context mContext;
+
+        public RestartLauncherTask(Context context) {
+            super();
+            mContext = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                ActivityManager am =
+                        (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                IActivityManager ams = ActivityManager.getService();
+                for (ActivityManager.RunningAppProcessInfo app: am.getRunningAppProcesses()) {
+                    if ("com.android.launcher3".equals(app.processName)) {
+                        ams.killApplicationProcess(app.processName, app.uid);
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
 }
